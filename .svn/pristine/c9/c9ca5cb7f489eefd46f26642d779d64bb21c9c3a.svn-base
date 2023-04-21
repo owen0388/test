@@ -1,0 +1,614 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:openim_demo/src/pages/shequ/shequ_logic.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
+import '../../common/Global.dart';
+import '../chat/QuickStart/quick_start/quickutils/keycenter.dart';
+import '../chat/QuickStart/quick_start/quickutils/zego_config.dart';
+import '../wcao/ui/theme.dart';
+
+///------------------------------------------
+///群聊社区
+///------------------------------------------
+class SheQuPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("综合社区",
+              style: TextStyle(
+                color: WcaoTheme.base,
+                fontSize: WcaoTheme.fsXl,
+                fontWeight: FontWeight.bold,
+              )),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+        ),
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: 10),
+            chatRoom(context),
+            SizedBox(height: 10),
+            chatRoom(context),
+            SizedBox(height: 10),
+            chatRoom(context),
+          ],
+        ));
+  }
+
+  ///语聊房
+  Widget chatRoom(BuildContext context) {
+    return Container(
+      child: Center(
+        child: InkWell(
+          child: Image.asset('assets/zpic002.png'),
+          onTap: () {
+            // 点击按钮时执行的操作
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => hottopicPage(),
+              ),
+            );
+          },
+          highlightColor: Colors.transparent, // 去掉选中效果
+          splashColor: Colors.transparent, // 去掉水波纹效果
+        ),
+      ),
+      decoration: BoxDecoration(
+        boxShadow: [], // 去掉阴影效果
+      ),
+    );
+  }
+}
+
+///------------------------------------------
+/// 热门话题
+///------------------------------------------
+class hottopicPage extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+    //创建引擎
+    createEngine();
+
+    //获取Logic
+    Get.lazyPut(()=>SheQuLogic());
+    var mySheQulogc = Get.find<SheQuLogic>();
+
+    //构建界面
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true, // 隐藏默认的返回按钮
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: Colors.black),
+          onPressed: () {
+            destroyEngine();
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          '热门话题',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            // fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+      ),
+      body: Container(
+          child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: 3,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+              height: 150,
+              // color: Colors.cyanAccent,
+              margin: EdgeInsets.only(top: 10, right: 10, left: 10),
+              child: Row(children: [
+                Expanded(
+                  child: Stack(alignment: Alignment.center, children: [
+                    Ink.image(
+                      image: AssetImage('assets/zpic005.png'),
+                      child: InkWell(
+                          onTap: () {
+                            // 点击按钮时执行的操作
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MultiPersonChatPage(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            margin:
+                                EdgeInsets.only(top: 10, left: 10, right: 10),
+                            child: Column(children: [
+                              Text(
+                                "热门标题",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              SizedBox(height: 10),
+                              Text("热门内容热门内容热门内容热门内容热门内容热门内容热门内容"),
+                            ]),
+                          )),
+                    )
+                  ]),
+                ),
+                Expanded(
+                    child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Ink.image(
+                      image: AssetImage('assets/zpic005.png'),
+                      child: InkWell(
+                          onTap: () {
+                            //先获取数据
+                            Global.SheQuGlobalNum1 = "room1";
+                            Global.SheQuGlobalNum2 = mySheQulogc.getMySelfUserID();
+                            Global.SheQuGlobalNum3 = mySheQulogc.getMySelfNickName();
+
+                            print("----------shequ------------");
+                            print(Global.SheQuGlobalNum1);
+                            print(Global.SheQuGlobalNum2);
+                            print(Global.SheQuGlobalNum3);
+
+                            // 点击按钮时执行的操作
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MultiPersonChatPage(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            margin:
+                                EdgeInsets.only(top: 10, left: 10, right: 10),
+                            child: Column(children: [
+                              Text(
+                                "热门标题",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              SizedBox(height: 10),
+                              Text("热门内容热门内容热门内容热门内容热门内容热门内容热门内容"),
+                            ]),
+                          )),
+                    )
+                  ],
+                )),
+              ]));
+        },
+      )),
+    );
+  }
+
+
+  //创建引擎
+  void createEngine() async{
+    print("创建引擎");
+    ZegoEngineProfile profile = ZegoEngineProfile(
+        KeyCenter.instance.appID,
+        ZegoConfig.instance.scenario,
+        enablePlatformView: ZegoConfig.instance.enablePlatformView,
+        appSign: kIsWeb ? null : KeyCenter.instance.appSign);
+
+    //创建引擎
+    ZegoExpressEngine.createEngineWithProfile(profile);
+  }
+
+
+  //销毁引擎
+  void destroyEngine() async{
+    print("销毁引擎");
+    ZegoExpressEngine.destroyEngine();
+  }
+}
+
+///------------------------------------------
+/// 多人语聊页面
+///------------------------------------------
+class MultiPersonChatPage extends StatelessWidget {
+
+  //变量定义
+  ZegoRoomState _roomState = ZegoRoomState.Disconnected;
+  ZegoPublisherState _publisherState = ZegoPublisherState.NoPublish;
+  ZegoPlayerState _playerState = ZegoPlayerState.NoPlay;
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    //设置监听
+    setZegoEventCallback();
+
+    //进入房间
+    loginRoom(Global.SheQuGlobalNum1,Global.SheQuGlobalNum2,Global.SheQuGlobalNum3);
+
+    //构建界面
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: true, // 隐藏默认的返回按钮
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () {
+              logoutRoom();
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            '多人语聊',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              // fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) {
+                    return DraggableScrollableSheet(
+                      expand: false,
+                      initialChildSize: 0.3,
+                      maxChildSize: 0.8,
+                      minChildSize: 0.3,
+                      builder: (context, scrollController) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                          ),
+                          child: ListView(
+                            controller: scrollController,
+                            children: [
+                              SizedBox(height: 20),
+                              Center(
+                                child: Text(
+                                  '设置',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              GridView.count(
+                                shrinkWrap: true,
+                                crossAxisCount: 4,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                children: List.generate(
+                                  8,
+                                  (index) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '按钮${index + 1}',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        body: Container(
+          child: Stack(
+            children: [
+              Positioned(
+                  child: Container(
+                child: Image.asset("assets/zpic004.jpg",
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity),
+              )),
+              Positioned(
+                top: 10,
+                left: 2,
+                child: Container(
+                    width: 348,
+                    height: 65,
+                    // color: Colors.cyanAccent,
+                    child: Text(
+                      "公告：下次开播时间18:00开次开播时间18:00开始下开播时间18:00开始",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    )),
+              ),
+              Positioned(
+                top: 15,
+                right: 3,
+                child: CircleAvatar(
+                  backgroundImage: AssetImage('assets/9.png'),
+                  radius: 25,
+                ),
+              ),
+              Positioned(
+                width: 348,
+                top: 80,
+                left: 2,
+                height: 470,
+                child: Container(
+                  // color: Colors.white,
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: 50,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              child: Text((index + 1).toString()),
+                            ),
+                            SizedBox(width: 10),
+                            Text("输入框的消息${(index + 1).toString()}",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12))
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                width: 60,
+                top: 80,
+                height: 450,
+                child: Container(
+                  // color: Colors.blue,
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: 50,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: CircleAvatar(
+                          child: Text((index + 1).toString()),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 480 + 50,
+                right: 3,
+                child: Text(
+                  '99人',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Positioned(
+                width: 409,
+                height: 40,
+                bottom: 1,
+                left: 2,
+                child: Container(
+                  color: Colors.grey,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: '请输入消息',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                width: 40,
+                height: 40,
+                bottom: 1,
+                right: 1,
+                child: Container(
+                  // color: Colors.amberAccent,
+                  child: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () {},
+                  ),
+                ),
+              )
+            ],
+          ),
+        ));
+  }
+
+
+  //加入房间
+  void loginRoom(String? myRoomID,String? myUserid,String? myUserName) async {
+    print("进入房间");
+
+    //设置功能
+    ZegoExpressEngine.instance.muteMicrophone(false);
+    ZegoExpressEngine.instance.setAudioRouteToSpeaker(true); //不外放
+    ZegoExpressEngine.instance.enableAEC(true);
+    ZegoExpressEngine.instance.enableTransientANS(true);
+    ZegoExpressEngine.instance.enableANS(true);
+
+    // 创建用户对象
+    ZegoUser user = ZegoUser(myUserid!,myUserName!);
+
+    // 只有传入 “isUserStatusNotify” 参数取值为 “true” 的 ZegoRoomConfig，才能收到 onRoomUserUpdate 回调。
+    ZegoRoomConfig config = ZegoRoomConfig.defaultConfig();
+    config.isUserStatusNotify = true;
+
+    // 如果您使用 appsign 的方式鉴权，token 参数不需填写；如果需要使用更加安全的 鉴权方式： token 鉴权，Web 平台仅支持 token 鉴权，请参考[如何从 AppSign 鉴权升级为 Token 鉴权](https://doc-zh.zego.im/faq/token_upgrade?product=ExpressVideo&platform=all)
+    // config.token = "xxxx";
+
+    // 开始登录房间
+    ZegoExpressEngine.instance.loginRoom(myRoomID!, user, config: config);
+
+  }
+
+
+  //退出房间
+  void logoutRoom() async {
+    print("退出房间");
+
+    //清楚列表
+    Global.SheQuGlobalList.clear();
+    //清理回调监听
+    clearZegoEventCallback();
+    //退出房间
+    ZegoExpressEngine.instance.logoutRoom(Global.SheQuGlobalNum1);
+  }
+
+
+  //清除回调监听
+  void clearZegoEventCallback() async{
+    print("清理监听");
+    ZegoExpressEngine.onRoomStateUpdate = null;
+    ZegoExpressEngine.onPublisherStateUpdate = null;
+    ZegoExpressEngine.onPlayerStateUpdate = null;
+    ZegoExpressEngine.onRoomUserUpdate = null;
+    ZegoExpressEngine.onRoomOnlineUserCountUpdate = null;
+  }
+
+
+  //状态回调
+  void setZegoEventCallback() async{
+
+    //房间状态变化通知
+    ZegoExpressEngine.onRoomStateUpdate = (String roomID, ZegoRoomState state, int errorCode, Map<String, dynamic> extendedData) {
+      print("房间状态变化通知");
+      print(roomID);
+      print(state);
+      print(errorCode);
+      print("打印1==$extendedData");
+      //推送流
+      startPublishingStream(Global.SheQuGlobalNum2);
+    };
+
+    //房间内其他用户增加或减少的回调通知
+    ZegoExpressEngine.onRoomUserUpdate = (String roomID, ZegoUpdateType updateType, List<ZegoUser> userList) {
+      print("房间内其他用户增加或减少的回调通知");
+      print(roomID);
+      print(updateType);
+      print(userList.length);
+
+      if (ZegoUpdateType.Add == updateType){
+        for(var i=0;i<userList.length;i++) {
+          print("add");
+          Global.SheQuGlobalList.add(userList[i]);
+        }
+      }
+
+      if (ZegoUpdateType.Delete == updateType) {
+        print("Delete");
+        for (var i = 0; i < Global.SheQuGlobalList.length; i++) {
+          if(Global.SheQuGlobalList[i].userID == userList[0].userID){
+            stopPlayingStream(Global.SheQuGlobalList[i].userID);
+            Global.SheQuGlobalList.removeAt(i);
+          }
+        }
+      }
+    };
+
+
+    //房间内当前在线用户数量回调
+    ZegoExpressEngine.onRoomOnlineUserCountUpdate = (String roomID, int count) {
+      print("房间内当前在线用户数量回调");
+      print(roomID);
+      print(count);
+    };
+
+
+    //推流状态回调
+    ZegoExpressEngine.onPublisherStateUpdate = (String streamID, ZegoPublisherState state, int errorCode, Map<String, dynamic> extendedData) {
+      print("推流状态回调");
+      print("推流状态回调-----");
+      print("推流ID：$streamID");
+      print(state);
+      print("打印==$extendedData");
+      if(state == ZegoPublisherState.Publishing){
+        for(var j=0; j<Global.SheQuGlobalList.length; j++) {
+          print("PlayingStream");
+          print(Global.SheQuGlobalList[j].userID);
+          print(Global.SheQuGlobalList[j].userName);
+          startPlayingStream(Global.SheQuGlobalList[j].userID);
+        }
+      }
+    };
+
+    //拉流状态变更回调
+    ZegoExpressEngine.onPlayerStateUpdate = (String streamID, ZegoPlayerState state, int errorCode, Map<String, dynamic> extendedData){
+      print("拉流状态变更回调");
+      print("拉流状态变更回调-----");
+      print("拉流ID：$streamID");
+      print(state);
+      print("打印==$extendedData");
+    };
+  }
+
+
+  //推流
+  void startPublishingStream(String streamID) async {
+    print("推流start");
+    return ZegoExpressEngine.instance.startPublishingStream("streamID");
+    // return await ZegoExpressEngine.instance.startPublishingStream(streamID, config: config, channel: channel);
+  }
+
+
+  //拉流
+  void startPlayingStream(String streamID) async {
+    print("拉流start");
+    ZegoExpressEngine.instance.muteAllPlayStreamAudio(true);
+    ZegoExpressEngine.instance.muteAllPlayStreamVideo(false);
+
+    return ZegoExpressEngine.instance.startPlayingStream(streamID);
+    // return await ZegoExpressEngine.instance.startPublishingStream(streamID, config: config, channel: channel);
+  }
+
+  //停止拉流
+  void stopPlayingStream(String streamID) async {
+    print("停止拉流");
+    return ZegoExpressEngine.instance.stopPlayingStream(streamID);
+  }
+}

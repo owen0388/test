@@ -1,0 +1,9 @@
+import 'package:zego_express_engine/zego_express_engine.dart';
+
+class Global{
+  //社区全局变量
+  static String SheQuGlobalNum1 = '';//房间号
+  static String SheQuGlobalNum2 = '';//用户ID
+  static String SheQuGlobalNum3 = '';//用户名字
+  static List<ZegoUser> SheQuGlobalList = [];//房间成员列表
+}
